@@ -1,0 +1,14 @@
+{
+  "name": "puppeteer-clean",
+  "version": "1.0.0",
+  "description": "Microservicio para validar contenido con Puppeteer",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "puppeteer": "^22.7.0"
+  }
+}
