@@ -17,19 +17,38 @@ async function checkUrl(url, text) {
 
   return html.includes(text);
 }
+const express = require('express');
+const puppeteer = require('puppeteer');
 
-app.post('/check', async (req, res) => {
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.get('/check', async (req, res) => {
+  const { url, text } = req.query;
+
+  if (!url || !text) {
+    return res.status(400).json({ error: 'Missing url or text parameter' });
+  }
+
   try {
-    const { url, text } = req.body;
-    if (!url || !text) {
-      return res.status(400).json({ error: 'Missing url or text' });
-    }
-    const found = await checkUrl(url, text);
-    res.json({ url, text, found });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+    const pageContent = await page.content();
+    const found = pageContent.includes(text);
+
+    await browser.close();
+
+    return res.json({ url, text, found });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`✅ Microservicio activo en puerto ${port}`));
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+
