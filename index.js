@@ -1,62 +1,55 @@
-import express from 'express';
-import puppeteer from 'puppeteer';
+const express = require('express');
+const cors = require('cors');
+const puppeteer = require('puppeteer');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
 
 app.get('/check', async (req, res) => {
-  const { url, text } = req.query;
+  const url = req.query.url;
+  const text = (req.query.text || '').trim();
 
-  if (!url || !text) {
-    return res.status(400).json({ error: 'Missing url or text parameter' });
+  if (!url) {
+    return res.status(400).json({ error: 'Missing URL parameter' });
   }
 
   let browser;
-
   try {
     browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
     const page = await browser.newPage();
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
-    // Simula navegador real
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-    );
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'es-CL,es;q=0.9,en;q=0.8'
-    });
-
-    await page.goto(url, {
-      waitUntil: 'domcontentloaded',
-      timeout: 30000
-    });
-
-    await page.waitForSelector('body', { timeout: 10000 }); // espera que cargue todo
+    await page.waitForSelector('body', { timeout: 10000 });
 
     const bodyText = await page.evaluate(() => {
       return document.body.innerText.replace(/\s+/g, ' ').trim();
     });
 
-    const found = bodyText.toLowerCase().includes(text.toLowerCase());
+    const found = text
+      ? bodyText.toLowerCase().includes(text.toLowerCase())
+      : !!bodyText;
 
-
-
-    await browser.close();
-
-    res.json({ url, text, found });
-
+    res.json({ url, found });
   } catch (error) {
+    console.error('Error during check:', error.message);
+    res.status(500).json({ error: error.message });
+  } finally {
     if (browser) {
-      try { await browser.close(); } catch (_) {}
+      await browser.close();
     }
-
-    console.error(`Error procesando ${url}:`, error.message);
-    res.status(500).json({ error: error.message || 'Unexpected error' });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.get('/', (req, res) => {
+  res.send('Puppeteer checker is running.');
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
