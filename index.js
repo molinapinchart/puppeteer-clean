@@ -33,8 +33,14 @@ app.get('/check', async (req, res) => {
       timeout: 30000
     });
 
-    const bodyText = await page.evaluate(() => document.body.innerText);
-    const found = bodyText.includes(text);
+    await page.waitForSelector('body', { timeout: 10000 }); // espera que cargue todo
+
+    const bodyText = await page.evaluate(() => {
+      return document.body.innerText.replace(/\s+/g, ' ').trim();
+    });
+
+    const found = bodyText.toLowerCase().includes(text.toLowerCase());
+
 
 
     await browser.close();
