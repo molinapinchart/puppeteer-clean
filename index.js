@@ -33,8 +33,9 @@ app.get('/check', async (req, res) => {
       timeout: 30000
     });
 
-    const pageContent = await page.content();
-    const found = pageContent.includes(text);
+    const bodyText = await page.evaluate(() => document.body.innerText);
+    const found = bodyText.includes(text);
+
 
     await browser.close();
 
