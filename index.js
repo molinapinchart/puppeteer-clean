@@ -11,21 +11,42 @@ app.get('/check', async (req, res) => {
     return res.status(400).json({ error: 'Missing url or text parameter' });
   }
 
+  let browser;
+
   try {
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
+
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+    // Simula navegador real
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    );
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'es-CL,es;q=0.9,en;q=0.8'
+    });
+
+    await page.goto(url, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000
+    });
 
     const pageContent = await page.content();
     const found = pageContent.includes(text);
 
     await browser.close();
 
-    return res.json({ url, text, found });
+    res.json({ url, text, found });
+
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    if (browser) {
+      try { await browser.close(); } catch (_) {}
+    }
+
+    console.error(`Error procesando ${url}:`, error.message);
+    res.status(500).json({ error: error.message || 'Unexpected error' });
   }
 });
 
