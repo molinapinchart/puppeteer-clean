@@ -1,14 +1,25 @@
 {
   "name": "puppeteer-clean",
   "version": "1.0.0",
-  "type": "module",
-  "main": "index.js",
+  "description": "Servicio backend para an\u00e1lisis SEO usando Puppeteer",
+  "main": "index.cjs",
+  "type": "commonjs",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.cjs"
   },
+  "keywords": [
+    "seo",
+    "puppeteer",
+    "n8n",
+    "crawler",
+    "backend",
+    "railway"
+  ],
+  "author": "Apprecio Dev Team",
+  "license": "MIT",
   "dependencies": {
-    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
     "puppeteer": "^22.8.2"
   }
 }
-
