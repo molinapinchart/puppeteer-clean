@@ -1,4 +1,6 @@
 node_modules/
+.puppeteer-cache/
+.cache/
 .env
 .DS_Store
 *.log
