@@ -1,13 +1,15 @@
+const express = require('express');
+const cors = require('cors');
 const puppeteer = require('puppeteer');
 
-(async () => {
-  const url = process.argv[2];
-  const divSelector = process.argv[3];
+const app = express();
+app.use(cors());
 
-  if (!url || !divSelector) {
-    console.error('Usage: node getDivText.js <url> <divSelector>');
-    process.exitCode = 1;
-    return;
+app.get('/div-text', async (req, res) => {
+  const { url, selector } = req.query;
+
+  if (!url || !selector) {
+    return res.status(400).json({ error: 'Missing url or selector query parameter' });
   }
 
   let browser;
@@ -18,18 +20,20 @@ const puppeteer = require('puppeteer');
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 20000 });
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
-    const result = await page.evaluate((selector) => {
-      const el = document.querySelector(selector);
-      return el ? el.innerText : 'Div not found';
-    }, divSelector);
+    await page.waitForSelector(selector, { timeout: 10000 });
 
-    console.log(result);
+    const text = await page.$eval(selector, el => el.innerText);
+
+    res.json({ text });
   } catch (err) {
-    console.error('Error:', err.message);
-    process.exitCode = 1;
+    res.status(500).json({ error: err.message });
   } finally {
     if (browser) await browser.close();
   }
-})();
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
