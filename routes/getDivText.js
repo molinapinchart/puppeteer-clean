@@ -1,13 +1,12 @@
 const express = require('express');
+const router = express.Router();
 const puppeteer = require('puppeteer');
 
-const router = express.Router();
+router.get('/div-text', async (req, res) => {
+  const { url, selector } = req.query;
 
-router.get('/getDivText', async (req, res) => {
-  const { url, div } = req.query;
-
-  if (!url || !div) {
-    return res.status(400).json({ error: 'Missing url or div parameter' });
+  if (!url || !selector) {
+    return res.status(400).json({ error: 'Missing url or selector parameter' });
   }
 
   let browser;
@@ -20,16 +19,17 @@ router.get('/getDivText', async (req, res) => {
     const page = await browser.newPage();
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 20000 });
 
-    const text = await page.evaluate((selector) => {
-      const el = document.querySelector(selector);
+    const result = await page.evaluate((sel) => {
+      const el = document.querySelector(sel);
       return el ? el.innerText : null;
-    }, div);
+    }, selector);
 
-    if (!text) {
-      return res.status(404).json({ error: 'Div not found' });
+    if (result) {
+      res.json({ text: result });
+    } else {
+      res.status(404).json({ error: 'Div not found' });
     }
 
-    res.json({ text });
   } catch (err) {
     res.status(500).json({ error: err.message });
   } finally {
@@ -38,3 +38,4 @@ router.get('/getDivText', async (req, res) => {
 });
 
 module.exports = router;
+
