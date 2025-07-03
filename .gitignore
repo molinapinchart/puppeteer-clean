@@ -1,6 +1,7 @@
-node_modules/
-.puppeteer-cache/
-.cache/
+node_modules
+.cache
+.puppeteer-cache
+chromium
 .env
 .DS_Store
 *.log
