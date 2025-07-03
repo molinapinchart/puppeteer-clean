@@ -19,7 +19,14 @@
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "puppeteer": "^22.15.0"
-  }
+    "express": "^4.21.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/molinapinchart/puppeteer-clean.git"
+  },
+  "bugs": {
+    "url": "https://github.com/molinapinchart/puppeteer-clean/issues"
+  },
+  "homepage": "https://github.com/molinapinchart/puppeteer-clean#readme"
 }
