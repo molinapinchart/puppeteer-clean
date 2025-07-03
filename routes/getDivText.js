@@ -1,15 +1,13 @@
 const express = require('express');
-const cors = require('cors');
 const puppeteer = require('puppeteer');
 
-const app = express();
-app.use(cors());
+const router = express.Router();
 
-app.get('/div-text', async (req, res) => {
-  const { url, selector } = req.query;
+router.get('/getDivText', async (req, res) => {
+  const { url, div } = req.query;
 
-  if (!url || !selector) {
-    return res.status(400).json({ error: 'Missing url or selector query parameter' });
+  if (!url || !div) {
+    return res.status(400).json({ error: 'Missing url or div parameter' });
   }
 
   let browser;
@@ -20,11 +18,16 @@ app.get('/div-text', async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 20000 });
 
-    await page.waitForSelector(selector, { timeout: 10000 });
+    const text = await page.evaluate((selector) => {
+      const el = document.querySelector(selector);
+      return el ? el.innerText : null;
+    }, div);
 
-    const text = await page.$eval(selector, el => el.innerText);
+    if (!text) {
+      return res.status(404).json({ error: 'Div not found' });
+    }
 
     res.json({ text });
   } catch (err) {
@@ -34,6 +37,4 @@ app.get('/div-text', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
+module.exports = router;

@@ -5,31 +5,13 @@
   "main": "index.cjs",
   "type": "commonjs",
   "scripts": {
-    "start": "node index.cjs",
-    "postinstall": "npx puppeteer browsers install chrome"
+    "start": "node index.cjs"
   },
-  "keywords": [
-    "seo",
-    "puppeteer",
-    "n8n",
-    "crawler",
-    "backend",
-    "railway"
-  ],
-  "author": "Apprecio Dev Team",
-  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "puppeteer": "^24.11.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/molinapinchart/puppeteer-clean.git"
-  },
-  "bugs": {
-    "url": "https://github.com/molinapinchart/puppeteer-clean/issues"
-  },
-  "homepage": "https://github.com/molinapinchart/puppeteer-clean#readme"
+  }
 }
+
 
