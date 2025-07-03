@@ -31,10 +31,18 @@ router.get('/div-text', async (req, res) => {
     }
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  } finally {
-    if (browser) await browser.close();
+  console.error('Error in /div-text:', err.message);
+  res.status(500).json({ error: err.message });
+} finally {
+  if (browser) {
+    try {
+      await browser.close();
+    } catch (closeErr) {
+      console.error('Error closing browser:', closeErr.message);
+    }
   }
+}
+ 
 });
 
 module.exports = router;
